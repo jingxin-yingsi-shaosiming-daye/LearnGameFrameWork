@@ -1,0 +1,5 @@
+#	默认配置		
+			
+#	配置项	注释	配置id
+	Scene.Menu	菜单场景	1
+	Scene.Main	主场景	2
