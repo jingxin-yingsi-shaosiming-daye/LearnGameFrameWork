@@ -15,6 +15,7 @@ namespace FlappyBird
     {
         /// <summary>
         /// 管道产生时间
+        /// 管道产生时间间隔
         /// </summary>
         private float m_PipeSpawnTime = 0f;
 
@@ -37,28 +38,31 @@ namespace FlappyBird
         {
             base.OnEnter(procedureOwner);
 
+            //1 打开UI计分窗口
             m_ScoreFormId = GameEntry.UI.OpenUIForm(UIFormId.ScoreForm).Value;
-
+            //2 显示背景游戏物体
             GameEntry.Entity.ShowBg(new BgData(GameEntry.Entity.GenerateSerialId(), 1, 1f, 0));
-
+            //3 显示小鸟
             GameEntry.Entity.ShowBird(new BirdData(GameEntry.Entity.GenerateSerialId(), 3, 5f));
 
-            //设置初始管道产生时间
+            //4 设置初始管道产生时间
             m_PipeSpawnTime = Random.Range(3f, 5f);
 
-            //订阅事件
+            //5 订阅事件 记录是否返回主菜单的值 的 变化事件
             GameEntry.Event.Subscribe(ReturnMenuEventArgs.EventId, OnReturnMenu);
         }
 
         protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
         {
             base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
-
+            //1 产生管道职能
+            //管道产生计时器    经过的秒
             m_PipeSpawnTimer += elapseSeconds;
+            // 如果管道产生计时器 大于等于 管道产生时间间隔
             if (m_PipeSpawnTimer >= m_PipeSpawnTime)
             {
-                m_PipeSpawnTimer = 0;
-                //随机设置管道产生时间
+                m_PipeSpawnTimer = 0;//计时器清零
+                //随机设置管道产生时间 在3到5之间
                 m_PipeSpawnTime = Random.Range(3f, 5f);
 
                 //产生管道
@@ -66,8 +70,8 @@ namespace FlappyBird
 
             }
 
-            //切换场景
-            if (m_IsReturnMenu)
+            //2 切换场景职能
+            if (m_IsReturnMenu)//如果返回主菜单的标志值为true
             {
                 m_IsReturnMenu = false;
                 procedureOwner.SetData<VarInt>(Constant.ProcedureData.NextSceneId, GameEntry.Config.GetInt("Scene.Menu"));
@@ -79,14 +83,16 @@ namespace FlappyBird
         {
             base.OnLeave(procedureOwner, isShutdown);
 
+            //1 关闭UI
             GameEntry.UI.CloseUIForm(m_ScoreFormId);
 
-            //取消订阅事件
+            //2 取消订阅事件
             GameEntry.Event.Unsubscribe(ReturnMenuEventArgs.EventId, OnReturnMenu);
         }
 
         private void OnReturnMenu(object sender, GameEventArgs e)
         {
+            //1 设置是否返回主菜单标志值
             m_IsReturnMenu = true;
         }
     }
